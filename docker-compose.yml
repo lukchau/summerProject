@@ -1,0 +1,50 @@
+version: '3'
+services:
+  database:
+    build:
+      context: .
+      dockerfile: database.Dockerfile
+    environment:
+      POSTGRES_USER: admin
+      DATABASE_PASSWORD: $${file:/run/secrets/mysecrets.py:DATABASE_PASSWORD}
+      POSTGRES_DB: SummerProject
+    ports:
+      - 5432:5432
+    volumes:
+      - database_data:/var/lib/postgresql/data
+    secrets:
+      - mysecrets 
+
+  parcer:
+    build:
+      context: .
+      dockerfile: parcer.Dockerfile
+    depends_on:
+      - database
+    environment:
+      TELEGRAM_BOT_TOKEN: $${file:/run/secrets/mysecrets.py:TELEGRAM_BOT_TOKEN}  
+
+  tgbot:
+    build:
+      context: .
+      dockerfile: tgbot.Dockerfile
+    depends_on:
+      - database
+      - parcer
+    environment:
+      TELEGRAM_BOT_TOKEN: $${file:/run/secrets/mysecrets.py:TELEGRAM_BOT_TOKEN}
+      DATABASE_PASSWORD: $${file:/run/secrets/mysecrets.py:DATABASE_PASSWORD}
+      USER_AGENT: $${file:/run/secrets/mysecrets.py:USER_AGENT}
+    volumes:
+      - tgbot_data:/app
+    secrets:
+      - mysecrets  
+
+secrets:
+  mysecrets:
+    file: mysecrets.py  
+
+volumes:
+  database_data:
+  parcer_data:
+  tgbot_data:
