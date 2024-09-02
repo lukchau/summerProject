@@ -1,7 +1,10 @@
 import requests
 from database import get_vacancy_info
 
-import mysecrets
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def display_vacancy(vacancy):
     salary = vacancy.get('salary')
@@ -21,7 +24,7 @@ def find_vacancies_by_name(name, user_id):
         "per_page": 100
     }
     headers = {
-        "User-Agent": 'mysecrets.USER_AGENT'
+        "User-Agent": os.getenv('USER_AGENT')
     }
     response = requests.get(url, params=params, headers=headers)
     if response.status_code == 200:

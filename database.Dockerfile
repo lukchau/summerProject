@@ -1,12 +1,12 @@
-FROM python:3.8
+FROM python:3.9-slim
 
-WORKDIR /app
+WORKDIR /app/
 
-COPY requirements.txt .
+RUN pip install psycopg2-binary
+RUN pip install python-dotenv
 
-RUN pip install --no-cache-dir -r requirements.txt
+COPY database.py .
 
-COPY mysecrets.py .
-COPY tgbot.py .
+ENV DATABASE_PASSWORD=${DATABASE_PASSWORD}
 
-CMD ["python", "tgbot.py"]
+CMD ["python", "database.py"]

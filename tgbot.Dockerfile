@@ -1,11 +1,16 @@
-FROM python:3.8
+FROM python:3.9-slim
 
-WORKDIR /app
+RUN pip install python-telegram-bot
+RUN pip install pyTelegramBotAPI
+RUN pip install psycopg2-binary
+RUN pip install python-dotenv
 
-COPY requirements.txt .
-COPY mysecrets.py .
-COPY tgbot.py .
+COPY tgbot.py /app/
+COPY parcer.py /app/
+COPY database.py /app/
 
-RUN pip install --no-cache-dir -r requirements.txt
+ENV TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+
+WORKDIR /app/
 
 CMD ["python", "tgbot.py"]

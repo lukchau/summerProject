@@ -4,10 +4,13 @@ from parcer import find_vacancies_by_name
 from database import get_vacancies_by_filter, delete_vacancies_by_user_id
 
 import time
-import mysecrets
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
-bot = telebot.TeleBot(mysecrets.TELEGRAM_BOT_TOKEN)
+bot = telebot.TeleBot(os.getenv('TELEGRAM_BOT_TOKEN'))
 
 
 name = None

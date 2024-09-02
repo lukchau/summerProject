@@ -1,11 +1,14 @@
 import psycopg2
-import mysecrets
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 conn = psycopg2.connect(
-    host="localhost",
+    host="database",
     database="SummerProject",
     user="postgres",
-    password=mysecrets.DATABASE_PASSWORD,
+    password=os.getenv('DATABASE_PASSWORD'),
     port=5432
 )
 

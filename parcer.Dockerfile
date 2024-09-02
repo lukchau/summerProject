@@ -1,11 +1,14 @@
-FROM python:3.8
+FROM python:3.9-slim
 
-WORKDIR /app
+RUN pip install requests
+RUN pip install python-dotenv
+RUN pip install psycopg2-binary
 
-COPY requirements.txt .
+COPY parcer.py /app/
+COPY database.py /app/
 
-RUN pip install --no-cache-dir -r requirements.txt
+ENV USER_AGENT=${USER_AGENT}
 
-COPY . .
+WORKDIR /app/
 
-CMD [ "python", "./parcer.py" ]
+CMD ["python", "parcer.py"]

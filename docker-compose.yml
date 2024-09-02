@@ -1,50 +1,50 @@
 version: '3'
+
 services:
   database:
-    build:
-      context: .
-      dockerfile: database.Dockerfile
+    image: postgres
     environment:
-      POSTGRES_USER: admin
-      DATABASE_PASSWORD: $${file:/run/secrets/mysecrets.py:DATABASE_PASSWORD}
-      POSTGRES_DB: SummerProject
-    ports:
-      - 5432:5432
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=SummerProject
+      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
     volumes:
-      - database_data:/var/lib/postgresql/data
-    secrets:
-      - mysecrets 
-
-  parcer:
-    build:
-      context: .
-      dockerfile: parcer.Dockerfile
-    depends_on:
-      - database
-    environment:
-      TELEGRAM_BOT_TOKEN: $${file:/run/secrets/mysecrets.py:TELEGRAM_BOT_TOKEN}  
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   tgbot:
     build:
       context: .
       dockerfile: tgbot.Dockerfile
-    depends_on:
-      - database
-      - parcer
     environment:
-      TELEGRAM_BOT_TOKEN: $${file:/run/secrets/mysecrets.py:TELEGRAM_BOT_TOKEN}
-      DATABASE_PASSWORD: $${file:/run/secrets/mysecrets.py:DATABASE_PASSWORD}
-      USER_AGENT: $${file:/run/secrets/mysecrets.py:USER_AGENT}
-    volumes:
-      - tgbot_data:/app
-    secrets:
-      - mysecrets  
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - DATABASE_HOST=database
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_USER=postgres
+      - DATABASE_NAME=SummerProject
+    ports: 
+      - "8000:8000"
+    depends_on:
+      database:
+        condition: service_healthy
 
-secrets:
-  mysecrets:
-    file: mysecrets.py  
+  parcer:
+    build:
+      context: .
+      dockerfile: parcer.Dockerfile
+    environment:
+      - USER_AGENT=${USER_AGENT}
+      - DATABASE_HOST=database
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_USER=postgres
+    depends_on:
+      database:
+        condition: service_healthy
 
 volumes:
-  database_data:
-  parcer_data:
-  tgbot_data:
+  db-data:
+
+name: summer_project
